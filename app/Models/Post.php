@@ -9,24 +9,10 @@ use Spatie\YamlFrontMatter\YamlFrontMatter;
 
 class Post
 {
-    public $filenames;
-
-    public function __construct()
-    {
-        $this->filenames = collect(File::allFiles(resource_path('markdown')))
-            ->sortByDesc(function ($file) {
-                return $file->getBaseName();
-            })
-            ->map(function ($file) {
-                return $file->getBaseName();
-            });
-    }
-
     public function all()
     {
-
-        $posts = $this->filenames->map(function ($filename) {
-            return $this->find($filename);
+        $posts = collect(File::allFiles(resource_path('markdown')))->each(function ($filename) {
+            return $this->find($filename->getFilename());
         });
 
         return collect($posts);
