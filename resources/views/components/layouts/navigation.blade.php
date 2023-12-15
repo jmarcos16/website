@@ -21,6 +21,10 @@
                     {{ __('Contato') }}
                 </x-nav-link>
 
+                <x-nav-link>
+                    {{ __('Projetos') }}
+                </x-nav-link>
+
                 <!-- Search button -->
 
                 <div class="flex items-center">
