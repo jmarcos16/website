@@ -8,7 +8,7 @@
                     image="{{ $post->image }}" 
                     title="{{ $post->title }}" 
                     date="{{ $post->created_at }}">
-                        {{ $post->body }}
+                    {!! $post->body !!}
                 </x-card-post>
             @endforeach
         </div>

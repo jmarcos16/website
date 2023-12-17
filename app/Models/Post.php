@@ -11,9 +11,13 @@ class Post
 {
     public function all()
     {
-        $posts = collect(File::allFiles(resource_path('markdown')))->each(function ($filename) {
-            return $this->find($filename->getFilename());
+        $posts = collect(File::allFiles(resource_path('markdown')))->sortByDesc(function ($file) {
+            return $file->getMTime();
         });
+
+        foreach ($posts as $key => $post) {
+            $posts[$key] = $this->find($post->getFilename());
+        }
 
         return collect($posts);
     }

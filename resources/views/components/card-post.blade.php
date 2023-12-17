@@ -11,7 +11,7 @@
     <div>
         <div class="text-2xl font-bold">{{$title}}</div>
         <span class="text-gray-500">
-            {{ substr($slot, 0, 200) }}
+            {!! substr($slot, 0, 200) !!}
         </span>
     </div>
 </a>
