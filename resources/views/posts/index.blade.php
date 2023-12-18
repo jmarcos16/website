@@ -12,6 +12,6 @@
                 </x-card-post>
             @endforeach
         </div>
-        {{$posts->render('pagination::simple-tailwind')}}
+        {{$posts->render('vendor.pagination.simple-tailwind')}}
     </div>
 </x-main-layout>

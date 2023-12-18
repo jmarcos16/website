@@ -91,4 +91,26 @@ class Post
         ));
     }
 
+    public function search(string $query, int $perPage = 10): LengthAwarePaginator
+    {
+        $posts = $this->all()->filter(function ($post) use ($query) {
+            return str_contains(strtolower($post->title), strtolower($query));
+        });
+
+        $currentPage = Paginator::resolveCurrentPage('page');
+        $total       = $posts->count();
+
+        return $this->paginator(
+            $posts->forPage($currentPage, $perPage),
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path'     => Paginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ]
+        );
+
+    }
+
 }
