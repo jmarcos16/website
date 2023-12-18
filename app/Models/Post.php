@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Entity\PostEntity;
 use Carbon\Carbon;
+use Illuminate\Container\Container;
+use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 
 class Post
 {
-    public function all()
+    public function all(): Collection
     {
         $posts = collect(File::allFiles(resource_path('markdown')))->sortByDesc(function ($file) {
             return $file->getMTime();
@@ -38,4 +41,54 @@ class Post
 
         return $post;
     }
+
+    public function paginate(int $perPage = 10): LengthAwarePaginator
+    {
+        $posts       = $this->all();
+        $currentPage = Paginator::resolveCurrentPage('page');
+        $total       = $posts->count();
+
+        return $this->paginator(
+            $posts->forPage($currentPage, $perPage),
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path'     => Paginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ]
+        );
+
+    }
+
+    public function simplePaginate(int $perPage = 10): LengthAwarePaginator
+    {
+        $posts       = $this->all();
+        $currentPage = Paginator::resolveCurrentPage('page');
+        $total       = $posts->count();
+
+        return $this->paginator(
+            $posts->slice(($currentPage - 1) * $perPage, $perPage),
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path'     => Paginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ]
+        );
+    }
+
+    protected function paginator($items, $total, $perPage, $currentPage, $options): LengthAwarePaginator
+    {
+
+        return Container::getInstance()->makeWith(LengthAwarePaginator::class, compact(
+            'items',
+            'total',
+            'perPage',
+            'currentPage',
+            'options'
+        ));
+    }
+
 }

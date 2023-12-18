@@ -12,5 +12,6 @@
                 </x-card-post>
             @endforeach
         </div>
+        {{$posts->render('pagination::simple-tailwind')}}
     </div>
 </x-main-layout>

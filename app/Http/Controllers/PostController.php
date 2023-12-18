@@ -12,7 +12,7 @@ class PostController extends Controller
         $posts = new Post();
 
         return view('posts.index', [
-            'posts' => $posts->all(),
+            'posts' => $posts->simplePaginate(9),
         ]);
     }
 
