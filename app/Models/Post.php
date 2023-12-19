@@ -27,9 +27,10 @@ class Post
 
     public function find(string $filename): PostEntity
     {
-        $post   = new PostEntity();
-        $file   = resource_path('markdown' . DIRECTORY_SEPARATOR . $filename);
-        $object = YamlFrontMatter::parseFile($file);
+        $post = new PostEntity();
+        $file = resource_path('markdown' . DIRECTORY_SEPARATOR . $filename);
+
+        File::exists($file) ? $object = YamlFrontMatter::parseFile($file) : abort(404);
 
         $post->title      = $object->title;
         $post->body       = $object->body();
