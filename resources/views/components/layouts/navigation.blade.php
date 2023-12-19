@@ -12,7 +12,10 @@
             <!-- Navigation Links -->
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <x-nav-link>
-                    {{ __('Blog') }}
+                    {{ __('Artigos') }}
+                </x-nav-link>
+                <x-nav-link>
+                    {{ __('Projetos') }}
                 </x-nav-link>
                 <x-nav-link>
                     {{ __('Sobre') }}
@@ -20,11 +23,6 @@
                 <x-nav-link>
                     {{ __('Contato') }}
                 </x-nav-link>
-
-                <x-nav-link>
-                    {{ __('Projetos') }}
-                </x-nav-link>
-
                 <!-- Search button -->
 
                 <div class="flex items-center">

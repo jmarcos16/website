@@ -14,11 +14,12 @@
     <body class="font-sans">
         <div class="min-h-screen bg-gray-100">
             @include('components.layouts.navigation')
-
             <!-- Page Content-->
             <main>                    
                 {{ $slot }}
             </main>
+
+            @include('components.layouts.footer')
         </div>
     </body>
 </html>
