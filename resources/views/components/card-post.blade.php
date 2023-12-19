@@ -4,7 +4,8 @@
     'date'
 ])
 <a {{ $attributes->merge(['class' => 'col-span-1 py-5']) }}>
-    <img src="{{ $image }}" alt="{{$title}}">
+    {{-- 800x600 --}}
+    <img src="{{ $image }}" alt="{{$title}}" style="width: 600px; height: 250px;" class="object-cover">
     <div class="flex gap-10 py-3">
         <span class="text-gray-500">{{ $date }}</span>
     </div>
