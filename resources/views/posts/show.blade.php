@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="px-4 py-10 mx-auto">
-        <x-markdown class="mx-auto text-lg font-normal leading-7 prose">
+        <x-markdown theme="github-dark" class="mx-auto text-lg font-normal leading-7 prose">
             {!! $post->body !!}
         </x-markdown>
     </div>
