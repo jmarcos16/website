@@ -1,232 +1,306 @@
 ---
-title: Como utilizar Enums dentro do Laravel
-image: https://miro.medium.com/v2/resize:fit:1400/1*LRwxMPJQTq4v5Ta6zZkpzw.png
+title: Como implementar níveis de acesso em um sistema Laravel — Laravel 10
+image: https://miro.medium.com/v2/resize:fit:640/format:webp/1*sRu7vmmy4QRRKlfTW-hybQ.png
 ---
 
-De fato a utilização de enums pode facilitar muito o desenvolvimento de uma aplicação, principalmente quando se trata de um sistema que possui muitos status, como por exemplo, um sistema de pedidos, onde cada pedido pode ter um status diferente, como: "Aguardando Pagamento", "Em Separação", "Em Transporte", "Entregue", etc.
+Provavelmente você já precisou implementar níveis de acesso em algum sistema que desenvolveu, e se você está aqui, provavelmente está precisando implementar em um sistema Laravel. Então, vamos lá!
 
-No **PHP-8.1** foi incluído o suporte nativo a enums, e o Laravel oferece uma integração muito boa com essa funcionalidades como tantas outras.
+Como sabemos o Laravel possui muitos recursos que facilitam o desenvolvimento de sistemas, nesse caso vamos utilizar o recurso de [Gate](https://laravel.com/docs/authorization#gates) que é um recurso que nos permite definir uma lógica de autorização de forma simples e expressiva, também vamos utilizar o [Laravel Auth](https://laravel.com/docs/authentication) que é um recurso que nos permite autenticar usuários de forma simples e rápida.
 
-### Obeservações
+### Observação
 
-- Para esse exemplo foi utilizado um projeto [Laravel](https://laravel.com/docs) 10.x, com o kit [Laravel Breeze](https://laravel.com/docs/10.x/starter-kits#laravel-breeze). 
-- Foi instalado junto ao Breeze o [Tailwind CSS](https://tailwindcss.com/), para facilitar a estilização do projeto.
-- O banco de dados utilizado foi o [SQLite](https://www.sqlite.org/index.html), que já vem configurado por padrão no Laravel.
-- Foi instalado o [Laravel Livewire](https://livewire.laravel.com/), para facilitar a criação de componentes reativos.
-- Para acessar o código fonte do projeto, [clique aqui](#).
+Paga facilitar eu crie um projeto Laravel do zero, mas você pode implementar em qualquer projeto Laravel, lembrando que você pode acessar o código fonte do projeto no [GitHub](https://github.com/jmarcos16/permisson-laravel.git).
 
+### 1. Criando o tabelas
 
-### Sobre o projeto
-O projeto é bem simples, e consiste em um simple Todo List, onde o usuário pode criar tarefas, e cada tarefa pode ter um status diferente, como: "A fazer", "Em andamento", "Concluída", etc.
-
-### 1 - Criando o Model
-
-Para criar o model, basta executar o comando:
+Vamos criar as tabelas que vamos utilizar para implementar o nível de acesso, para isso vamos utilizar o recurso de [Migrations](https://laravel.com/docs/migrations) do Laravel.
 
 ```bash
-php artisan make:model Task
+php artisan make:migration create_roles_table
+php artisan make:migration create_role_user_table
 ```
-Va até o arquivo `app/Models/Task.php` e adicione o seguinte código:
+
+Agora vamos criar as tabelas, para isso vamos utilizar o recurso de [Schema Builder](https://laravel.com/docs/migrations#creating-tables) do Laravel.
 
 ```php
-<?php
+// database/migrations/2020_03_29_000000_create_roles_table.php
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Task extends Model
+public function up()
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'title',
-        'status',
-    ];
-
+    Schema::create('roles', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->timestamps();
+    });
 }
 ```
 
-### 2 - Criando a Migration
-
-Para criar a migration, basta executar o comando:
-
-```bash
-php artisan make:migration create_tasks_table
-```
-
-Va até o arquivo <kbd>database/migrations/2021_10_10_000000_create_tasks_table.php</kbd> e adicione o seguinte código:
-
 ```php
-<?php
+// database/migrations/2020_03_29_000000_create_role_user_table.php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
+public function up()
 {
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('permission_user', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('status');
-            $table->timestamps();
+            $table->foreignIdFor(\App\Models\User::class);
+            $table->foreignIdFor(\App\Models\Role::class);
         });
     }
+
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
-    }
-};
-```
-### 3 - Criando a Enum de Status
-
-Nesse caso será necessário criar o arquivo manuamente, pois não existe um comando para criar enums no Laravel, então vamos criar o arquivo dentro da nossa pasta <kbd>\App\Enums\StatusEnum.php</kbd>, e adicionar o seguinte código:
-
-```php
-<?php
-namespace App\Enums;
-
-enum StatusEnum:string
-{
-    const PENDING = 'pending';
-    const IN_PROGRESS = 'in_progress';
-    const DONE = 'done';
-
-    public function label()
-    {
-        return match ($this) {
-            self::PENDING => 'A fazer',
-            self::IN_PROGRESS => 'Em progresso',
-            self::DONE => 'Feito',
-        };
-    }
-
-    public function color()
-    {
-        return match ($this) {
-            self::PENDING => 'red',
-            self::IN_PROGRESS => 'yellow',
-            self::DONE => 'green',
-        };
+        Schema::dropIfExists('permission_user');
     }
 }
 ```
-Tanto o label quanto color, são métodos que podem ser utilizados para facilitar a exibição dos dados na view, como por exemplo, para exibir o status de uma tarefa, podemos utilizar o método `label()` para exibir o nome do status, e o método `color()` para exibir a cor do status.
 
-### 4 - Criando o livewire component
+Nessa situação eu estou utilizando um relacionamento de muitos para muitos, onde um usuário pode ter muitas permissões e uma permissão pode ter muitos usuários.
 
-Para criar o livewire component, basta executar o comando:
+### 2. Criando as Models
+
+Agora vamos criar as Models que vamos utilizar para implementar o nível de acesso, para isso vamos utilizar o recurso de [Eloquent ORM](https://laravel.com/docs/eloquent) do Laravel.
 
 ```bash
-php artisan make:livewire tasks.index
+php artisan make:model Role
 ```
-Esse comando gerará dois arquivos, um arquivo de view <kbd>resources/views/livewire/tasks/index.blade.php</kbd> e um arquivo de classe <kbd>app/Livewire/Tasks/Index.php</kbd>.
-
-Va até o arquivo <kbd>app/Livewire/Tasks/Index.php</kbd> e adicione o seguinte código:
 
 ```php
-<?php
+// app/Models/Role.php
 
-namespace App\Livewire\Tasks;
-
-use Livewire\Component;
-
-class Index extends Component
+class Role extends Model
 {
-    public function render()
+    protected $fillable = [
+        'name',
+    ];
+
+    public function users(): BelongsToMany
     {
-        return view('livewire.tasks.index',[
-            'tasks' => \App\Models\Task::all(),
-        ]);
+        return $this->belongsToMany(User::class);
     }
 }
 ```
 
-No arquivo <kbd>resources/views/livewire/tasks/index.blade.php</kbd> adicione o seguinte código:
+```bash
+php artisan make:model User
+```
+
+```php
+// app/Models/User.php
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function assignRole(string $role): void
+    {
+        $this->roles()->firstOrCreate(['name' => $role]);
+
+        $this->roles()->attach($role);
+    }
+}
+```
+
+Vamos entender qual a função de cada método da Model User.
+
+- **roles()**: Retorna um relacionamento de muitos para muitos com a Model Role.
+
+- **hasRole()**: Verifica se o usuário possui uma determinada permissão.
+
+- **assignRole()**: Atribui uma permissão para o usuário.
+
+### 3. Criando as Gates
+
+Nesse exemplo vamos criar 2 [Gates](https://laravel.com/docs/authorization#gates), uma para verificar se o usuário é administrador e outra para verificar se o usuário é um usuário comum.
+
+```php
+
+// app/Providers/AuthServiceProvider.php
+
+class AuthServiceProvider extends ServiceProvider
+{
+    protected $policies = [
+        'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
+
+    public function boot(): void
+    {
+        $this->registerPolicies();
+
+        Gate::define('admin', function (User $user): bool {
+            return $user->hasRole('admin');
+        });
+
+        Gate::define('user', function (User $user): bool {
+            return $user->hasRole('user');
+        });
+    }
+}
+```
+
+
+### Formas de utilizar as Gates
+
+Agora que já criamos as Gates, vamos entender como podemos utilizá-las.
+
+#### 1. Utilizando as Gates no Controller
+
+
+```php
+
+// app/Http/Controllers/HomeController.php
+
+class HomeController extends Controller
+{
+    public function index(): View
+    {
+        if (Gate::allows('admin')) {
+            return view('admin');
+        }
+
+        if (Gate::allows('user')) {
+            return view('user');
+        }
+
+        return view('home');
+    }
+}
+```
+
+Vejam que no exemplo acima eu estou utilizando o método [allows()](https://laravel.com/docs/authorization#via-the-user-model) que verifica se o usuário possui uma determinada permissão, caso o usuário possua a permissão ele retorna true, caso contrário ele retorna false.
+
+#### 2. Utilizando as Gates no Blade
 
 ```blade
-<div class="flex flex-col">
-    <div class="flex flex-row items-center justify-between mb-4">
-        <h1 class="text-2xl font-bold">Tarefas</h1>
-        <a href="{{ route('tasks.create') }}" class="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600">Criar Tarefa</a>
-    </div>
-    <div class="flex flex-col">
-        @foreach ($tasks as $task)
-            <div class="flex flex-row items-center justify-between py-2 border-b border-gray-200">
-                <div class="flex flex-row items-center">
-                    <div class="w-4 h-4 rounded-full bg-{{ $task->status->color() }} mr-2"></div>
-                    <p class="text-lg">{{ $task->title }}</p>
-                </div>
-                <div class="flex flex-row items-center">
-                    <a href="{{ route('tasks.edit', $task) }}" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">Editar</a>
-                    <form action="{{ route('tasks.destroy', $task) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="px-4 py-2 ml-2 text-white bg-red-500 rounded-md hover:bg-red-600">Excluir</button>
-                    </form>
-                </div>
-            </div>
-        @endforeach
-    </div>
-</div>
+
+// resources/views/home.blade.php
+
+@if (Gate::allows('admin'))
+    <a href="{{ route('admin') }}">Admin</a>
+@endif
+
+@if (Gate::allows('user'))
+    <a href="{{ route('user') }}">User</a>
+@endif
+
 ```
 
-### 5 - Gerando Tasks de exemplo
+Você também pode utilizar o método [can()](https://laravel.com/docs/authorization#via-blade-templates) que verifica se o usuário possui uma determinada permissão, caso o usuário possua a permissão ele retorna true, caso contrário ele retorna false.
 
-Para facilitar a nossa vida vamos utilizar o [Laravel Factory](https://laravel.com/docs/8.x/database-testing#generating-factories) para gerar algumas tasks de exemplo, para isso vamos executar o comando:
+```blade
 
-```bash
-php artisan make:factory TaskFactory --model=Task
+// resources/views/home.blade.php
+
+@can('admin')
+    <a href="{{ route('admin') }}">Admin</a>
+@endcan
+
+@can('user')
+    <a href="{{ route('user') }}">User</a>
+@endcan
+
 ```
-Vamos até o arquivo <kbd>database/faactories/TaskFactory.php</kbd> e adicionar o seguinte código:
+
+
+### 4. Utilizando as Gates nas Rotas
+
+O método citado acima **can()** também pode ser utilizado nas rotas, para isso vamos utilizar o recurso de [Route::middleware()](https://laravel.com/docs/routing#route-group-middleware) do Laravel.
 
 ```php
-<?php
 
-namespace Database\Factories;
+// routes/web.php
 
-use App\Enums\StatusEnum;
-use Illuminate\Database\Eloquent\Factories\Factory;
-class TaskFactory extends Factory
-{
-    public function definition(): array
-    {
-        return [
-            'title' => $this->faker->sentence,
-            'status' => $this->faker->randomElement(StatusEnum::cases()['value']),
-        ];
-    }
-}
-```	
+Route::middleware(['can:admin'])->group(function () {
+    Route::get('/admin', function () {
+        return view('admin');
+    })->name('admin');
+});
 
-Agora vamos até o arquivo <kbd>database/seeders/DatabaseSeeder.php</kbd> e adicionar o seguinte código:
+Route::middleware(['can:user'])->group(function () {
+    Route::get('/user', function () {
+        return view('user');
+    })->name('user');
+});
+
+```
+
+Como você pode ver no exemplo acima, eu estou utilizando o método [middleware()](https://laravel.com/docs/routing#route-group-middleware) que verifica se o usuário possui uma determinada permissão, caso o usuário possua a permissão ele retorna true, caso contrário ele retorna false, eu particulamente prefiro utilizar esse método nas rotas, desta forma o sistema bloqueia o acesso a rota caso o usuário não possua a permissão, desta forma caso não possua a permissão o sistema não chama o Controller e nem a View, o que torna o sistema mais seguro.
+
+
+
+### Como eu posso atribuir uma permissão para um usuário?
+
+Para atribuir uma permissão para um usuário, basta utilizar o método **assignRole()** que criamos na Model User.
 
 ```php
-<?php
 
-namespace Database\Seeders;
+// app/Http/Controllers/HomeController.php
 
-use Illuminate\Database\Seeder;
-
-class DatabaseSeeder extends Seeder
+class HomeController extends Controller
 {
-    public function run(): void
+    public function index(): View
     {
-        \App\Models\Task::factory()->count(20)->create();
+        $user = User::find(1);
+
+        $user->assignRole('admin');
+
+        return view('home');
     }
 }
 ```
 
-Agora vamos executar o comando para gerar as tasks de exemplo:
+Você também pode atribuir uma permissão para um usuário utilizando o método **attach()** que criamos na Model User.
 
-```bash
-php artisan migrate // Caso ainda não tenha executado, para criar as tabelas no banco de dados
-php artisan db:seed
+```php
+
+// app/Http/Controllers/HomeController.php
+
+class HomeController extends Controller
+{
+    public function index(): View
+    {
+        $user = User::find(1);
+
+        $user->roles()->attach('admin');
+
+        return view('home');
+    }
+}
 ```
+
+
+### Conclusão
+
+Nesse artigo vimos como implementar níveis de acesso em um sistema Laravel utilizando o recurso de [Gate](https://laravel.com/docs/authorization#gates) e [Laravel Auth](https://laravel.com/docs/authentication), também vimos como podemos utilizar as Gates no Controller, Blade e nas Rotas, e por fim vimos como podemos atribuir uma permissão para um usuário.
+
+
+
 
 
 

@@ -111,7 +111,6 @@ class Post
                 'pageName' => 'page',
             ]
         );
-
     }
 
 }
