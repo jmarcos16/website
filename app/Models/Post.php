@@ -12,6 +12,11 @@ use Spatie\YamlFrontMatter\YamlFrontMatter;
 
 class Post
 {
+    /**
+     * Get all posts.
+     *
+     * @return Collection<PostEntity>
+     */
     public function all(): Collection
     {
         $posts = collect(File::allFiles(resource_path('markdown')))->sortByDesc(function ($file) {
@@ -25,6 +30,13 @@ class Post
         return collect($posts);
     }
 
+    /**
+     * Find a post by filename.
+     *
+     * @param string $filename
+     *
+     * @return PostEntity
+     */
     public function find(string $filename): PostEntity
     {
         $post = new PostEntity();
@@ -43,6 +55,13 @@ class Post
         return $post;
     }
 
+    /**
+     * Paginate posts.
+     *
+     * @param int $perPage
+     *
+     * @return LengthAwarePaginator
+     */
     public function paginate(int $perPage = 10): LengthAwarePaginator
     {
         $posts       = $this->all();
@@ -62,6 +81,13 @@ class Post
 
     }
 
+    /**
+     * Paginate posts.
+     *
+     * @param int $perPage
+     *
+     * @return LengthAwarePaginator
+     */
     public function simplePaginate(int $perPage = 10): LengthAwarePaginator
     {
         $posts       = $this->all();
@@ -80,6 +106,17 @@ class Post
         );
     }
 
+    /**
+     * Create a new length-aware paginator instance.
+     *
+     * @param Collection $items
+     * @param int        $total
+     * @param int        $perPage
+     * @param int        $currentPage
+     * @param array      $options
+     *
+     * @return LengthAwarePaginator
+     */
     protected function paginator($items, $total, $perPage, $currentPage, $options): LengthAwarePaginator
     {
 
@@ -92,6 +129,14 @@ class Post
         ));
     }
 
+    /**
+     * Search posts.
+     *
+     * @param string $query
+     * @param int    $perPage
+     *
+     * @return LengthAwarePaginator
+     */
     public function search(string $query, int $perPage = 10): LengthAwarePaginator
     {
         $posts = $this->all()->filter(function ($post) use ($query) {
