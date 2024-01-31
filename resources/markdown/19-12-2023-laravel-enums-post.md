@@ -2,7 +2,6 @@
 title: Como implementar níveis de acesso em um sistema Laravel — Laravel 10
 image: https://miro.medium.com/v2/resize:fit:640/format:webp/1*sRu7vmmy4QRRKlfTW-hybQ.png
 ---
-
 Provavelmente você já precisou implementar níveis de acesso em algum sistema que desenvolveu, e se você está aqui, provavelmente está precisando implementar em um sistema Laravel. Então, vamos lá!
 
 Como sabemos o Laravel possui muitos recursos que facilitam o desenvolvimento de sistemas, nesse caso vamos utilizar o recurso de [Gate](https://laravel.com/docs/authorization#gates) que é um recurso que nos permite definir uma lógica de autorização de forma simples e expressiva, também vamos utilizar o [Laravel Auth](https://laravel.com/docs/authentication) que é um recurso que nos permite autenticar usuários de forma simples e rápida.
