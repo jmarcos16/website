@@ -2,26 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
+use App\Support\MarkDownParse;
 use Illuminate\Contracts\View\View;
 
 class PostController extends Controller
 {
-    public function index(): View
+    public function index(MarkDownParse $markdown): View
     {
-        $posts = new Post();
-
         return view('posts.index', [
-            'posts' => $posts->simplePaginate(9),
+            'posts' => $markdown->simplePaginate(9),
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(MarkDownParse $markdown, string $slug): View
     {
-        $post = new Post();
-
         return view('posts.show', [
-            'post' => $post->find($slug . '.md'),
+            'post' => $markdown->find($slug . '.md'),
         ]);
     }
 }
