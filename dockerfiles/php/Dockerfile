@@ -16,6 +16,9 @@ RUN docker-php-ext-install gd \
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Install node and npm
+RUN apk add --no-cache nodejs npm
+
 # Set working directory
 
 WORKDIR /var/www
