@@ -7,6 +7,13 @@
     <meta name="viewport" content="width=device-width,
         initial-scale=1">
     <title>{{ $title }}</title>
+    {{-- CEO site --}}
+    <meta name="description" content="Tutorias, novidades dicas e muito mais sobre PHP">
+    <meta name="keywords" content="phpislife">
+    <meta name="author" content="phpislife">
+    <meta name="robots" content="index, follow">
+    <meta name="revisit-after" content="1 days">
+    <meta name="language" content="Portuguese">
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Albert+Sans:200,
         600" type="text/css">
