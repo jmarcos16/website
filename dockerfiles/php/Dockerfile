@@ -9,7 +9,6 @@ RUN apk add --no-cache \
     zlib-dev
 
 # Install PHP extensions
-
 RUN docker-php-ext-install gd \
     && docker-php-ext-install zip
 
@@ -20,7 +19,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN apk add --no-cache nodejs npm
 
 # Set working directory
-
 WORKDIR /var/www
 
 EXPOSE 9000
