@@ -21,8 +21,8 @@ services:
     volumes:
       - .:/var/www
       - ./dockerfiles/nginx/prod.conf:/etc/nginx/conf.d/default.conf
-      - /etc/certificate/phpislife.com.br/fullchain.pem:/etc/letsencrypt/ssl/
-      - /etc/certificate/phpislife.com.br/privkey.pem:/etc/letsencrypt/ssl/
+      - ./dockerfiles/nginx/sites-available:/etc/nginx/sites-available
+      - ./nginx/letsencrypt:/etc/letsencrypt
     networks:
       - laravel_app
 networks:
