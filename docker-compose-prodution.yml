@@ -13,7 +13,9 @@ services:
     networks:
       - laravel_app
   nginx:
-    image: nginx:alpine
+    build: 
+      context: .
+      dockerfile: dockerfiles/nginx/Dockerfile
     container_name: nginx
     ports:
       - "80:80"
