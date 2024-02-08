@@ -4,7 +4,7 @@
         {{ $post->title }}
     </x-slot>
 
-    <div class="w-full h-56 bg-gradient-to-r from-gray-900 to-sky-900">
+    <div class="w-full h-auto lg:h-56 bg-gradient-to-r from-gray-900 to-sky-900">
         <div class="flex flex-col items-start w-full h-full max-w-3xl gap-6 px-4 py-10 mx-auto">
             <span class="font-semibold text-blue-400">{{$post->created_at}}</span>
             <h1 class="text-4xl font-bold text-gray-200">
