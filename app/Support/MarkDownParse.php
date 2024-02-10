@@ -30,9 +30,10 @@ class MarkDownParse
 
         if ($this->fileSystem->exists($file)) {
             $object = YamlFrontMatter::parseFile($file);
-
+            
             $post             = new stdClass();
             $post->title      = $object->title;
+            $post->draft      = $object->draft;
             $post->body       = $object->body();
             $post->slug       = explode('.', $filename)[0];
             $post->image      = $object->image;
@@ -44,12 +45,6 @@ class MarkDownParse
         }
         abort(404);
     }
-
-    /**
-     * Get all posts from markdown files.
-     *
-     * @return Collection
-     */
 
     public function all(): Collection
     {

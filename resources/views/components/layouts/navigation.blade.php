@@ -14,12 +14,12 @@
                 <x-nav-link :href="route('posts.index')">
                     {{ __('Artigos') }}
                 </x-nav-link>
-                <x-nav-link>
+                {{-- <x-nav-link>
                     {{ __('Projetos') }}
                 </x-nav-link>
                 <x-nav-link>
                     {{ __('Sobre') }}
-                </x-nav-link>
+                </x-nav-link> --}}
                 <x-nav-link :href="route('contact')">
                     {{ __('Contato') }}
                 </x-nav-link>
@@ -46,13 +46,13 @@
                 {{ __('Artigos') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link>
+            {{-- <x-responsive-nav-link>
                 {{ __('Projetos') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link>
                 {{ __('Sobre') }}
-            </x-responsive-nav-link>
+            </x-responsive-nav-link> --}}
 
             <x-responsive-nav-link :href="route('contact')">
                 {{ __('Contato') }}

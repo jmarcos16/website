@@ -7,7 +7,7 @@
                         Artigos
                     </a>
                 </div>
-                <div class="px-5 py-2">
+                {{-- <div class="px-5 py-2">
                     <a href="#" class="text-base text-gray-400 hover:text-white">
                         Projetos
                     </a>
@@ -16,7 +16,7 @@
                     <a href="#" class="text-base text-gray-400 hover:text-white">
                         Sobre
                     </a>
-                </div>
+                </div> --}}
                 <div class="px-5 py-2">
                     <a href="{{route('contact')}}" class="text-base text-gray-400 hover:text-white">
                         Contato
