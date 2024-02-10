@@ -9,6 +9,10 @@ Route::get('/', function () {
 });
 
 Route::get('posts/{slug}', function (MarkDownParse $markdown, $slug) {
+
+    $post = $markdown->find($slug . '.md');
+    !$post->draft ?: abort(404);
+    
     return view('posts.show', [
         'post' => $markdown->find($slug . '.md')
     ]);
